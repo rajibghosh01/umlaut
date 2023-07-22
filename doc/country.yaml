@@ -1,0 +1,324 @@
+paths:
+  /country:
+     post:
+      security:
+        - bearerAuth: []
+      tags: 
+        - Country
+      summary: Add new country.
+      operationId: addNewCountry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/definitions/AddCountryReqObj"
+      responses:
+        200:
+          description: Add new country.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    exaple: 200
+                  response:
+                    type: String
+                    example: success
+                  msg:
+                    type: String
+                    example: Country has been added.
+                  countryId:
+                    type: integer
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Error"
+     get:
+      security:
+        - bearerAuth: []
+      summary: Find and retrive all country's.
+      operationId: fetchAllCountry
+      tags:
+        - Country
+      parameters:
+        - in: query
+          name: include
+          description: To fetch all the associations.
+          required: false
+          schema:
+            type: string
+            example: all
+      responses:
+        200:
+          description: Country-List
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/CountryList"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Error"
+  /country/{countryId}:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Find and retrive specific country.
+      operationId: fetchSpecificCountryData
+      tags:
+       - Country
+      parameters:
+        - in: path
+          name: countryId
+          description: Country-ID to fetch specific country data with the associations.
+          required: true
+          schema:
+            type: string
+            example: 1
+        - in: query
+          name: include
+          description: To fetch all the associations.
+          required: false
+          schema:
+            type: string
+            example: all
+      responses:
+        200:
+          description: Country-Data
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/CountryData"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Error"
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Country
+      summary: Update an existing country data.
+      operationId: updateCountryData
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: countryId
+          description: Country-ID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/definitions/AddCountryReqObj"
+      responses:
+        200:
+          description: Update country data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  response:
+                    type: string
+                    example: success
+                  msg:
+                    type: string
+                    example: Country data updated successfully. 
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Error"
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+       - Country
+      summary: Delete country Record.
+      operationId: deleteCountryRecord
+      parameters:
+        - in: path
+          name: countryId
+          description: Country_ID(countryId)
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: Delete country Record.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/definitions/successRes"
+                  - $ref: "#/definitions/invalidRes"
+                  - $ref: "#/definitions/errorRes"
+              examples:
+                success:
+                  summary: Example of successful response.
+                  value:
+                    status: 200
+                    response: success
+                    msg: Country has been deleted successfully.
+                invalidId:
+                  summary: Example of invalid response.
+                  value:
+                    status: 401
+                    response: validationerror
+                    msg: Invalid operation.
+                error:
+                  summary: Example of error response.
+                  value:
+                    status: 400
+                    responses: error
+                    msg: Some thing went wrong.
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/definitions/Error"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+definitions:
+  CountryData:
+    type: object
+    properties:
+      status:
+        type: integer
+        example: 200
+      response:
+        type: string
+        example: success
+      country:
+        type: object
+        properties:
+          countryId:
+            type: integer
+          countryName:
+            type: string
+          createdAt:
+            type: date
+            example: "2021-08-12T15:42:52.000Z"
+          updatedAt:
+            type: date
+            example: "2021-08-12T15:42:52.000Z"
+  AddCountryReqObj:
+    type: object
+    properties:
+      countryName:
+        type: string
+  CountryObj:
+    type: array
+    items:
+      type: object
+      properties:
+        countryId:
+          type: integer
+        countryName:
+          type: string
+  CountryList:
+    type: object
+    properties:
+      status:
+        type: integer
+        example: 200
+      response:
+        type: string
+        example: success
+      country:
+        $ref: "#/definitions/CountryObj"
+  Error:
+    type: object
+    required:
+      - status
+      - response
+    properties:
+      status:
+        type: integer
+        example: 400
+      response:
+        type: string
+        example: error
+      msg:
+        type: string
+        example: Some thing went wrong.
+      error:
+        type: object
+        properties:
+          name:
+            type: string
+          errors:
+            type: array
+            items:
+              type: object
+              properties:
+                message:
+                  type: string
+  successRes:
+    type: object
+    required:
+      - status
+      - response
+    properties:
+      status:
+        type: integer
+        example: 200
+      response:
+        type: string
+        example: success
+      msg:
+        type: string
+        example: Country has been deleted successfully.
+  invalidRes:
+    type: object
+    required:
+      - status
+      - response
+    properties:
+      status:
+        type: integer
+        example: 400
+      response:
+        type: string
+        example: invailid
+      msg:
+        type: string
+        example: Invailid AdvisorID.
+  errorRes:
+    type: object
+    required:
+      - status
+      - response
+    properties:
+      status:
+        type: integer
+        example: 500
+      response:
+        type: string
+        rxample: error
+      msg:
+        type: string
+        example: Some thing went wrong.
